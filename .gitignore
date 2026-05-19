@@ -1,0 +1,71 @@
+# ==========================================
+# Khidmat AI — Root Gitignore File
+# Prevents accidental leaks of keys, builds, or packages
+# ==========================================
+
+# Environment variables & Sensitive Keys (CRITICAL SAFETY)
+.env
+.env.local
+.env.*.local
+*.env
+*.json
+!package.json
+!tsconfig.json
+!firebase.json
+!*example.json
+!*schema.json
+!*metadata.json
+firebase-credentials.json
+
+# Python / Backend
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+.cache/
+.pytest_cache/
+db.sqlite3
+*.db
+
+# Node / Web (Next.js)
+node_modules/
+dist/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Flutter / Mobile
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+frontend/build/
+**/android/app/key.properties
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+
+# Temporary Zip and Traces
+*.zip
+antigravity_traces_and_logs/
+
+# IDEs and OS
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db

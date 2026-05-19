@@ -1,0 +1,35 @@
+# Khidmat AI Backend — Dependencies
+
+# Web Framework
+fastapi==0.115.0
+uvicorn[standard]>=0.34.0
+python-multipart==0.0.12
+
+# Google AI
+google-adk==1.2.1
+google-generativeai==0.8.3
+
+# Firebase
+firebase-admin==6.6.0
+
+# HTTP Client
+httpx==0.28.1
+aiohttp==3.11.11
+
+# Twilio (WhatsApp, SMS, Voice)
+twilio==9.4.1
+
+# Blockchain (Polygon)
+web3==7.6.0
+
+# Environment
+python-dotenv==1.0.1
+
+# Data
+pydantic>=2.11.1
+
+# Date/Time
+python-dateutil==2.9.0
+
+# Utilities
+uuid6==2024.7.10

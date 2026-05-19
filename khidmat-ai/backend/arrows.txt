@@ -1,0 +1,7 @@
+main.py:44:"7-agent pipeline: Intent → Discovery → Matching → Negotiation → "
+main.py:45:"Booking → FollowUp → DemandPrediction."
+agents/coordinator.py:3:Orchestrates the full 7-agent pipeline: Intent → Discovery → Matching →
+agents/coordinator.py:4:Negotiation → Booking → FollowUp → DemandPrediction.
+agents/coordinator.py:28:1. IntentAgent → Extract service type, location, time
+agents/coordinator.py:29:2. DiscoveryAgent → Find nearby providers
+agents/coordinator.py:30:3. MatchingAgent → Rank providers with 5-factor scoring
