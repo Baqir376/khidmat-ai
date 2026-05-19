@@ -19,5 +19,5 @@ ENV HOST=0.0.0.0
 ENV PORT=8000
 ENV DEBUG=false
 
-# Start FastAPI application using uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI application using uvicorn dynamically binding to PORT
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
