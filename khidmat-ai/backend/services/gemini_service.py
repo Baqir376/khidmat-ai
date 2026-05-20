@@ -498,6 +498,64 @@ def _mock_response(prompt: str) -> str:
             "reminder_message": "Aapka appointment 1 ghante baad hai",
             "satisfaction_question": "Service kaisi rahi? 1-5 stars dein",
         })
+    elif "you are khidmat ai" in prompt_lower or "customer now says:" in prompt_lower or "dialogue" in prompt_lower:
+        # Detect if we already have service and time hint
+        # Or if we can parse it from the prompt/history/msg
+        msg_match = re.search(r'customer now says:\s*(.*)', prompt, re.IGNORECASE)
+        msg_str = msg_match.group(1).strip() if msg_match else ""
+        if not msg_str:
+            msg_str = search_text
+            
+        msg_str_lower = msg_str.lower()
+        
+        # Let's find service
+        service = None
+        for stype, keywords in service_keywords.items():
+            for kw in keywords:
+                if kw in msg_str_lower:
+                    service = stype
+                    break
+            if service:
+                break
+        
+        # If not in msg, maybe it's already detected in the prompt?
+        if not service:
+            service_match = re.search(r'detected service so far:\s*([a-z_]+)', prompt_lower)
+            if service_match and service_match.group(1) != "not":
+                service = service_match.group(1).strip()
+                
+        # Let's check time hint
+        time_hint = None
+        # Common time words
+        time_words = ["aaj", "shaam", "baje", "now", "immediately", "urgent", "today", "tomorrow", "pm", "am", "morning", "evening", "6", "7", "8", "9", "10"]
+        for w in time_words:
+            if w in msg_str_lower:
+                time_hint = w
+                break
+                
+        if not time_hint:
+            time_match = re.search(r'detected time so far:\s*(.+)', prompt_lower)
+            if time_match and "not mentioned" not in time_match.group(1):
+                time_hint = time_match.group(1).strip()
+
+        # Let's generate a proper conversational response based on what is detected
+        if service and time_hint:
+            service_title = service.replace("_", " ").title()
+            if "aaj" in msg_str_lower or "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str:
+                return f"Theek hai, aapke liye {service_title} book karte hain. Main abhi providers dhoondh raha hoon. [READY_TO_BOOK]"
+            else:
+                return f"Sure! I am booking a {service_title} for you at {time_hint}. Searching for recommended providers now. [READY_TO_BOOK]"
+        elif service:
+            service_title = service.replace("_", " ").title()
+            if "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str or "bijli" in msg_str_lower or "fan" in msg_str_lower or "kharab" in msg_str_lower:
+                return f"Aapko {service_title} chahiye hoga. Kis waqt aap service lena pasand karenge?"
+            else:
+                return f"I see you need a {service_title}. Could you please confirm what time you would like the service?"
+        else:
+            if "assalam" in msg_str_lower or "hello" in msg_str_lower or "hi" in msg_str_lower:
+                return "Wa Alaikum Assalam! I'm your Khidmat AI assistant. 😊\n\nJust tell me what you need:\n• \"Mera pankha kharab hai\"\n• \"Plumber chahiye\"\n• \"Need a tutor for my kid\"\n\nHow can I help you today?"
+            else:
+                return "I can help you book plumbers, electricians, AC mechanics, and more. Please let me know what issue you are facing!"
     else:
         return json.dumps({"response": "Service request received", "status": "ok"})
 

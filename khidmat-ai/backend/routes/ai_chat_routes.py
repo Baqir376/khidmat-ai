@@ -31,6 +31,7 @@ class AIChatResponse(BaseModel):
     extracted_time: Optional[str] = None
     extracted_date: Optional[str] = None
     redirect_query: Optional[str] = None   # Full prompt to send to /api/book
+    user_transcription: Optional[str] = None
 
 
 # ── Service keyword maps ──────────────────────────────────────────────────────
@@ -237,6 +238,7 @@ Your reply:"""
             service_type=service,
             extracted_time=time_hint,
             redirect_query=redirect_query,
+            user_transcription=msg if is_voice else None,
         )
 
     return AIChatResponse(
@@ -244,4 +246,5 @@ Your reply:"""
         action="chat",
         service_type=service,
         extracted_time=time_hint,
+        user_transcription=msg if is_voice else None,
     )

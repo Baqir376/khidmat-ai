@@ -12,6 +12,7 @@ import '../providers/app_provider.dart';
 import '../providers/language_provider.dart';
 import '../theme/app_theme.dart';
 import '../l10n/strings.dart';
+import 'chat_screen.dart';
 
 class AIChatbotScreen extends StatefulWidget {
   final double userLat;
@@ -242,28 +243,38 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     final langProvider = context.read<LanguageProvider>();
     final appProvider = context.read<AppProvider>();
 
-    String displayUserText = isVoice ? (langProvider.isUrdu ? "🎤 وائس میسج بھیجا گیا" : "🎤 Sent a voice message") : text;
+    final userMessageMap = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'sender': 'user',
+      'text': text,
+      'timestamp': DateTime.now(),
+    };
 
     setState(() {
-      _messages.add({
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'sender': 'user',
-        'text': displayUserText,
-        'timestamp': DateTime.now(),
-      });
+      _messages.add(userMessageMap);
       _isSending = true;
     });
     
     Timer(const Duration(milliseconds: 100), _scrollToBottom);
 
     try {
-      // Build history for endpoint
+      // Build history for endpoint, using transcription when available so we don't send huge base64 blocks
       final List<Map<String, String>> chatHistory = _messages
-          .where((m) => m['id'] != 'greeting')
-          .map<Map<String, String>>((m) => {
-                'role': m['sender'] == 'user' ? 'user' : 'assistant',
-                'text': m['text'].toString(),
-              })
+          .where((m) => m['id'] != 'greeting' && m['id'] != userMessageMap['id'])
+          .map<Map<String, String>>((m) {
+            String msgText = m['text'].toString();
+            if (msgText.startsWith("voice_msg_audio|")) {
+              if (m['transcription'] != null && m['transcription'].toString().isNotEmpty) {
+                msgText = m['transcription'].toString();
+              } else {
+                msgText = "Sent a voice message";
+              }
+            }
+            return {
+              'role': m['sender'] == 'user' ? 'user' : 'assistant',
+              'text': msgText,
+            };
+          })
           .toList();
 
       final res = await ApiService.sendAIChat(
@@ -277,9 +288,13 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
       final reply = res['reply'] ?? '';
       final action = res['action'] ?? 'chat';
       final serviceType = res['service_type'];
+      final userTrans = res['user_transcription'] as String?;
 
       if (mounted) {
         setState(() {
+          if (userTrans != null && userTrans.isNotEmpty) {
+            userMessageMap['transcription'] = userTrans;
+          }
           _messages.add({
             'id': DateTime.now().millisecondsSinceEpoch.toString(),
             'sender': 'assistant',
@@ -436,6 +451,14 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
   Widget _buildMessageBubble(Map<String, dynamic> message, bool isUser) {
     final text = message['text'] as String;
     final isGreeting = message['id'] == 'greeting';
+
+    if (text.startsWith("voice_msg_audio|")) {
+      return VoicePlayerBubble(
+        voiceData: text,
+        isMe: isUser,
+        otherPersonName: "AI Chatbot",
+      );
+    }
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
