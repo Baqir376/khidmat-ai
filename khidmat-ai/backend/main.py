@@ -13,6 +13,7 @@ from routes.admin_routes import router as admin_router
 from routes.webhooks import router as webhooks_router
 from routes.chat_routes import router as chat_router
 from routes.auth_routes import router as auth_router
+from routes.ai_chat_routes import router as ai_chat_router
 
 
 @asynccontextmanager
@@ -66,6 +67,7 @@ app.include_router(admin_router, prefix="/api", tags=["Admin & Analytics"])
 app.include_router(webhooks_router, prefix="/api/webhooks", tags=["Messaging Integrations"])
 app.include_router(chat_router, prefix="/api/chat", tags=["Chat System"])
 app.include_router(auth_router, prefix="/api", tags=["Authentication"])
+app.include_router(ai_chat_router, prefix="/api", tags=["AI Chatbot"])
 
 
 @app.get("/")

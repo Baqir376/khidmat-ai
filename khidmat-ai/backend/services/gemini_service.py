@@ -55,6 +55,35 @@ async def generate_text(
         return _mock_response(full_prompt)
 
 
+async def transcribe_audio_base64(audio_base64: str, mime_type: str = "audio/mp4") -> str:
+    """Transcribes base64-encoded audio using Gemini."""
+    if _model:
+        try:
+            import base64
+            import asyncio
+            audio_bytes = base64.b64decode(audio_base64)
+            
+            def _call():
+                response = _model.generate_content([
+                    {
+                        "mime_type": mime_type,
+                        "data": audio_bytes
+                    },
+                    "Transcribe this audio recording exactly to text. If spoken in Urdu/Roman Urdu, write it in Urdu script or Roman Urdu. Return ONLY the transcription, nothing else."
+                ])
+                return response.text
+            
+            transcription = await asyncio.wait_for(
+                asyncio.to_thread(_call),
+                timeout=12.0
+            )
+            return transcription.strip()
+        except Exception as e:
+            print(f"[Gemini] Audio transcription failed: {e}")
+            return ""
+    return ""
+
+
 async def generate_json(
     prompt: str,
     system_instruction: Optional[str] = None,

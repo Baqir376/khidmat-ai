@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../providers/language_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/safety_fab.dart';
 import 'my_bookings_screen.dart';
 import 'nearby_providers_screen.dart';
+import 'ai_chatbot_screen.dart';
 import '../services/location_service.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -213,11 +215,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select<AppProvider, bool>((p) => p.isLoading);
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Khidmat AI'),
+        title: Text(lang.t('Khidmat AI', 'خدمت اے آئی')),
         actions: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12),
@@ -237,6 +240,20 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(width: 8),
+          // Language Switcher button
+          TextButton(
+            onPressed: () {
+              lang.toggle();
+            },
+            child: Text(
+              lang.isUrdu ? 'English' : 'اردو',
+              style: const TextStyle(
+                color: AppTheme.primaryGreen,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout), 
             onPressed: _logout,
@@ -246,10 +263,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _currentIndex == 0 
           ? _buildServiceForm(isLoading) 
           : _currentIndex == 1
-              ? const MyBookingsScreen(status: 'pending')
+              ? AIChatbotScreen(userLat: _userLat, userLng: _userLng)
               : _currentIndex == 2
-                  ? const MyBookingsScreen(status: 'confirmed')
-                  : const MyBookingsScreen(status: 'completed'),
+                  ? const MyBookingsScreen(status: 'pending')
+                  : _currentIndex == 3
+                      ? const MyBookingsScreen(status: 'confirmed')
+                      : const MyBookingsScreen(status: 'completed'),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -259,22 +278,26 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         selectedItemColor: AppTheme.primaryGreen,
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'New Request',
+            icon: const Icon(Icons.add_circle_outline),
+            label: lang.t('New Request', 'نئی درخواست'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.hourglass_empty),
-            label: 'Pending',
+            icon: const Icon(Icons.smart_toy_outlined),
+            label: lang.t('AI Chatbot', 'اے آئی چیٹ'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.check_circle_outline),
-            label: 'Jobs Taken',
+            icon: const Icon(Icons.hourglass_empty),
+            label: lang.t('Pending', 'پینڈنگ'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Completed',
+            icon: const Icon(Icons.check_circle_outline),
+            label: lang.t('Jobs Taken', 'فعال کام'),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.history),
+            label: lang.t('Completed', 'مکمل شدہ'),
           ),
         ],
       ),
@@ -283,6 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildServiceForm(bool isLoading) {
+    final lang = context.watch<LanguageProvider>();
     return SafeArea(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -292,16 +316,16 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "What service do you need today?",
+                lang.t("What service do you need today?", "آج آپ کو کس سروس کی ضرورت ہے؟"),
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                "Type in Roman Urdu, Urdu, or English (e.g. 'Mera AC kharab hai')",
-                style: TextStyle(color: AppTheme.textSecondary),
+              Text(
+                lang.t("Type in Roman Urdu, Urdu, or English (e.g. 'Mera AC kharab hai')", "اردو، رومن یا انگریزی میں لکھیں (جیسے 'میرا پنکھا خراب ہے')"),
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 20),
 
@@ -342,8 +366,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Text(
                               _hasRealLocation
-                                  ? (_customAddress != null ? '📍 Service Location Selected' : '📍 Live Location Active')
-                                  : '📡 Getting Your Location...',
+                                  ? (_customAddress != null ? lang.t('📍 Service Location Selected', '📍 منتخب کردہ مقام') : lang.t('📍 Live Location Active', '📍 لائیو لوکیشن فعال ہے'))
+                                  : lang.t('📡 Getting Your Location...', '📡 لوکیشن حاصل کی جا رہی ہے...'),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -352,8 +376,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Text(
                               _hasRealLocation
-                                  ? (_customAddress ?? 'Showing nearest professionals to you')
-                                  : 'Tap to allow location access',
+                                  ? (_customAddress ?? lang.t('Showing nearest professionals to you', 'آپ کے قریبی خدمت گار دکھائے جا رہے ہیں'))
+                                  : lang.t('Tap to allow location access', 'لوکیشن کی اجازت دینے کے لیے ٹیپ کریں'),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 11,

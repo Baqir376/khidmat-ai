@@ -281,6 +281,38 @@ class ApiService {
     }
   }
 
+  /// Send chat message to AI Chatbot endpoint
+  static Future<Map<String, dynamic>> sendAIChat({
+    required String message,
+    required List<Map<String, String>> history,
+    double lat = 24.8607,
+    double lng = 67.0099,
+    String language = 'en',
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/ai-chat'),
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode({
+          'message': message,
+          'history': history,
+          'lat': lat,
+          'lng': lng,
+          'language': language,
+        }),
+      );
 
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to send AI chat: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
 }
 
