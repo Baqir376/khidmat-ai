@@ -162,7 +162,7 @@ We have added a custom `Dockerfile` and `.dockerignore` to the `khidmat-ai/backe
 3. Click **New +** -> **Web Service**.
 4. Link your GitHub repository.
 5. Apply the following settings:
-   * **Name:** `khidmat-ai-backend`
+   * **Name:** `khidmat-ai`
    * **Region:** `Singapore` (Recommended for low latency)
    * **Branch:** `main`
    * **Root Directory:** `khidmat-ai/backend` *(Make sure this is set!)*
@@ -170,7 +170,7 @@ We have added a custom `Dockerfile` and `.dockerignore` to the `khidmat-ai/backe
    * **Instance Type:** `Free`
 6. Click **Advanced** -> **Add Environment Variable** and insert all the key-value pairs from your local `.env` file.
 7. Click **Create Web Service**. 
-8. Once Render shows your deployment as "Live", copy your public URL (e.g., `https://khidmat-ai-backend.onrender.com`).
+8. Once Render shows your deployment as "Live", copy your public URL (e.g., `https://khidmat-ai.onrender.com`).
 9. Update `fallbackUrl` in `frontend/lib/services/api_service.dart` with your Render URL, then rebuild your Flutter App.
 
 ---
