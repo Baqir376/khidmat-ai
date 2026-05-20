@@ -625,36 +625,54 @@ class _VoicePlayerBubbleState extends State<VoicePlayerBubble> {
     }
   }
 
+  bool _hasExplicitTranscription() {
+    final parts = widget.voiceData.split('|');
+    if (widget.voiceData.startsWith("voice_msg_audio|")) {
+      // In voice_msg_audio, parts[3] is base64 audio. A transcription would be in parts[4].
+      return parts.length >= 5 && parts[4].isNotEmpty;
+    }
+    // In voice_msg (chatbot replies), parts[3] is the transcription text.
+    return parts.length >= 4 && parts[3].isNotEmpty;
+  }
+
   String _getTranscriptionText() {
     final parts = widget.voiceData.split('|');
+    if (widget.voiceData.startsWith("voice_msg_audio|")) {
+      if (parts.length >= 5 && parts[4].isNotEmpty) {
+        return parts[4];
+      }
+      
+      // Fallback context-aware transcriptions
+      final otherName = widget.otherPersonName.toLowerCase();
+      final isOtherCustomer = otherName.contains('customer') || otherName.contains('citizen') || otherName.contains('user');
+      
+      if (widget.isMe) {
+        // Sent by me
+        if (isOtherCustomer) {
+          // I am the Provider
+          return "Assalamu Alaikum! Main aapke kaam ke liye nikal chuka hoon aur jald hi pohnch raha hoon.";
+        } else {
+          // I am the Customer
+          return "Assalamu Alaikum! Main ne booking confirm kar di hai. Please jald se jald tashreef layein.";
+        }
+      } else {
+        // Sent by other person
+        if (isOtherCustomer) {
+          // Other is Customer
+          return "Assalamu Alaikum! Main ne booking confirm kar di hai. Please jald se jald tashreef layein.";
+        } else {
+          // Other is Provider
+          return "Assalamu Alaikum! Main aapke kaam ke liye nikal chuka hoon aur jald hi pohnch raha hoon.";
+        }
+      }
+    }
+    
     if (parts.length >= 4 && parts[3].isNotEmpty) {
       return parts[3];
     }
-    
-    // Fallback context-aware transcriptions
-    final otherName = widget.otherPersonName.toLowerCase();
-    final isOtherCustomer = otherName.contains('customer') || otherName.contains('citizen') || otherName.contains('user');
-    
-    if (widget.isMe) {
-      // Sent by me
-      if (isOtherCustomer) {
-        // I am the Provider
-        return "Assalamu Alaikum! Main aapke kaam ke liye nikal chuka hoon aur jald hi pohnch raha hoon.";
-      } else {
-        // I am the Customer
-        return "Assalamu Alaikum! Main ne booking confirm kar di hai. Please jald se jald tashreef layein.";
-      }
-    } else {
-      // Sent by other person
-      if (isOtherCustomer) {
-        // Other is Customer
-        return "Assalamu Alaikum! Main ne booking confirm kar di hai. Please jald se jald tashreef layein.";
-      } else {
-        // Other is Provider
-        return "Assalamu Alaikum! Main aapke kaam ke liye nikal chuka hoon aur jald hi pohnch raha hoon.";
-      }
-    }
+    return "";
   }
+
 
   void _togglePlay() async {
     if (_isPlaying) {
@@ -837,6 +855,22 @@ class _VoicePlayerBubbleState extends State<VoicePlayerBubble> {
                 ),
               ],
             ),
+            if (_hasExplicitTranscription()) ...[
+              const SizedBox(height: 6),
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                ),
+                child: Text(
+                  _getTranscriptionText(),
+                  style: TextStyle(
+                    color: widget.isMe ? Colors.white.withValues(alpha: 0.9) : AppTheme.textPrimary,
+                    fontSize: 13.5,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

@@ -396,6 +396,7 @@ def _mock_response(prompt: str) -> str:
         "gardener": ["gardener", "mali", "lawn", "plant", "pauda", "ghas", "grass"],
         "tutor": ["tutor", "teacher", "tuition", "padhai", "sir", "madam", "study"],
         "beautician": ["beautician", "beauty", "makeup", "parlour", "mehnd", "facial", "hair"],
+        "cook": ["cook", "cooking", "khana", "food", "bawarchi", "kitchen"],
         "generator": ["generator", "genset"],
         "welder": ["welder", "weld", "loha", "iron", "gate"],
         "tiler": ["tiler", "tile", "marble", "floor"],
@@ -546,11 +547,11 @@ def _mock_response(prompt: str) -> str:
             else:
                 return f"Sure! I am booking a {service_title} for you at {time_hint}. Searching for recommended providers now. [READY_TO_BOOK]"
         elif service:
-            service_title = service.replace("_", " ").title()
-            if "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str or "bijli" in msg_str_lower or "fan" in msg_str_lower or "kharab" in msg_str_lower:
-                return f"Aapko {service_title} chahiye hoga. Kis waqt aap service lena pasand karenge?"
+            service_title = service.replace("_", " ").replace("Ac", "AC").lower()
+            if "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str or "bijli" in msg_str_lower or "fan" in msg_str_lower or "kharab" in msg_str_lower or "roman" in prompt_lower:
+                return f"ap ko {service_title} ki zaroorat hai kindly time confirm kr dein phir main recommended providers batata hu ap ko"
             else:
-                return f"I see you need a {service_title}. Could you please confirm what time you would like the service?"
+                return f"You need a {service_title}. Kindly confirm the time so I can show you recommended providers."
         else:
             if "assalam" in msg_str_lower or "hello" in msg_str_lower or "hi" in msg_str_lower:
                 return "Wa Alaikum Assalam! I'm your Khidmat AI assistant. 😊\n\nJust tell me what you need:\n• \"Mera pankha kharab hai\"\n• \"Plumber chahiye\"\n• \"Need a tutor for my kid\"\n\nHow can I help you today?"

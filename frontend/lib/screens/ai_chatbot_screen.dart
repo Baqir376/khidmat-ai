@@ -269,6 +269,11 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
               } else {
                 msgText = "Sent a voice message";
               }
+            } else if (msgText.startsWith("voice_msg|")) {
+              final parts = msgText.split('|');
+              if (parts.length >= 4) {
+                msgText = parts[3];
+              }
             }
             return {
               'role': m['sender'] == 'user' ? 'user' : 'assistant',
@@ -298,7 +303,7 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
           _messages.add({
             'id': DateTime.now().millisecondsSinceEpoch.toString(),
             'sender': 'assistant',
-            'text': reply,
+            'text': "voice_msg|${(reply.length / 15).clamp(3, 15).toInt()}|12,18,22,14,16,10,15,8,12,6|$reply",
             'timestamp': DateTime.now(),
           });
           _isSending = false;
@@ -452,9 +457,15 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
     final text = message['text'] as String;
     final isGreeting = message['id'] == 'greeting';
 
-    if (text.startsWith("voice_msg_audio|")) {
+    if (text.startsWith("voice_msg|") || text.startsWith("voice_msg_audio|")) {
+      String displayVoiceData = text;
+      final trans = message['transcription'] as String?;
+      if (text.startsWith("voice_msg_audio|") && trans != null && trans.isNotEmpty) {
+        // Appending the transcription as parts[4]
+        displayVoiceData = "$text|$trans";
+      }
       return VoicePlayerBubble(
-        voiceData: text,
+        voiceData: displayVoiceData,
         isMe: isUser,
         otherPersonName: "AI Chatbot",
       );

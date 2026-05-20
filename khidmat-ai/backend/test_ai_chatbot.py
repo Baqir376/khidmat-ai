@@ -109,9 +109,40 @@ async def main():
     assert res.get("service_type") == "ac_mechanic", "Lost service type context"
 
     # =========================================================================
-    # TEST CASE 3: Guard rails / Irrelevant request
+    # TEST CASE 3: Cooking Intent (Roman Urdu)
     # =========================================================================
-    print_banner("TEST CASE 3: Irrelevant Request (Guard rails)")
+    print_banner("TEST CASE 3: Cooking Intent (Roman Urdu)")
+    
+    history = []
+    
+    # Step 1. Problem statement ("khana pakane k liye cook chahiye")
+    msg = "khana pakane k liye cook chahiye"
+    print(f"User:  {msg}")
+    res = simulate_chat(msg, history)
+    reply = res["reply"]
+    action = res["action"]
+    print(f"AI:    {reply}")
+    print(f"Meta:  Action={action} | Service={res.get('service_type')} | Time={res.get('extracted_time')}")
+    assert res.get("service_type") == "cook", "Failed to detect cook service from 'khana pakane k liye cook'"
+    history.append({"role": "user", "text": msg})
+    history.append({"role": "assistant", "text": reply})
+    
+    # Step 2. Confirming time ("kal subah 9 baje")
+    print("-" * 50)
+    msg = "kal subah 9 baje"
+    print(f"User:  {msg}")
+    res = simulate_chat(msg, history)
+    reply = res["reply"]
+    action = res["action"]
+    print(f"AI:    {reply}")
+    print(f"Meta:  Action={action} | Service={res.get('service_type')} | Time={res.get('extracted_time')} | Redirect={res.get('redirect_query')}")
+    assert action == "show_providers", "Failed to trigger provider search for cook"
+    assert res.get("service_type") == "cook", "Lost cook service type context"
+
+    # =========================================================================
+    # TEST CASE 4: Guard rails / Irrelevant request
+    # =========================================================================
+    print_banner("TEST CASE 4: Irrelevant Request (Guard rails)")
     
     history = []
     msg = "tell me the recipe for chicken biryani"

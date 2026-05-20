@@ -147,10 +147,27 @@ async def ai_chat(req: AIChatRequest):
                 if transcription:
                     msg = transcription
                 else:
-                    msg = "mera pankha kharab hai"  # Smart default fallback
+                    # Graceful fallback: Ask user to type since Gemini is rate-limited / failed
+                    if lang == "ur":
+                        reply = "معذرت، میں آپ کا وائس میسج نہیں سن سکا۔ برائے مہربانی اپنا مسئلہ ٹائپ کر کے بتائیں۔"
+                    else:
+                        reply = "Aap ka voice message mila lekin main use sun nahi saka. Kindly type kr k batayein ap ko kis service ki zaroorat hai."
+                    return AIChatResponse(
+                        reply=reply,
+                        action="chat",
+                        user_transcription="[Voice Message]"
+                    )
         except Exception as e:
             print(f"[AI Chat] Voice message transcription failed: {e}")
-            msg = "mera pankha kharab hai"  # Fallback
+            if lang == "ur":
+                reply = "معذرت، میں آپ کا وائس میسج نہیں سن سکا۔ برائے مہربانی اپنا مسئلہ ٹائپ کر کے بتائیں۔"
+            else:
+                reply = "Aap ka voice message mila lekin main use sun nahi saka. Kindly type kr k batayein ap ko kis service ki zaroorat hai."
+            return AIChatResponse(
+                reply=reply,
+                action="chat",
+                user_transcription="[Voice Message]"
+            )
 
     # ── 1. Detect service from conversation history + current message ──────────
     full_context = " ".join([t.text for t in history if t.role == "user"] + [msg])
@@ -189,13 +206,12 @@ You ONLY help with booking home services (plumber, electrician, AC mechanic, car
 
 RULES:
 1. Reply in the SAME language the customer uses (Roman Urdu, Urdu, or English).
-2. If customer says something like "mera pankha kharab hai" → say they need an electrician, ask for preferred time.
+2. If the customer specifies a problem without a time/date (e.g. "fan kharab hai") → identify the service and reply exactly: "ap ko [service] ki zaroorat hai kindly time confirm kr dein phir main recommended providers batata hu ap ko" in Roman Urdu, or "You need a [service]. Kindly confirm the time so I can show you recommended providers" in English. Replace [service] with the actual detected service type (e.g., electrician, plumber).
 3. If you identified the service and they gave time → reply saying you'll find providers now. End reply with: [READY_TO_BOOK]
 4. If the question is NOT about home services → politely say you only handle home service bookings.
-5. Ask for time/date if service is clear but time is missing.
-6. Keep replies SHORT (max 3-4 lines). Be warm and helpful.
-7. Do NOT make up prices or provider names.
-8. Response language preference: {"Urdu" if lang == "ur" else "Match customer's language"}
+5. Keep replies SHORT (max 3-4 lines). Be warm and helpful.
+6. Do NOT make up prices or provider names.
+7. Response language preference: {"Urdu" if lang == "ur" else "Match customer's language"}
 
 Detected service so far: {service or "not yet detected"}
 Detected time so far: {time_hint or "not mentioned yet"}
