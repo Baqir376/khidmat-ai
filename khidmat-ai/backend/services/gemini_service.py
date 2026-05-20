@@ -429,10 +429,40 @@ def _mock_response(prompt: str) -> str:
             "confidence": 0.75,
         })
     elif "negotiat" in prompt_lower:
+        # Extract quoted price and fair range from negotiation prompt
+        quoted_match = re.search(r'(?:Quoted Price|quoted):\s*(?:Rs\s*)?(\d+)', prompt, re.IGNORECASE)
+        fair_range_match = re.search(r'(?:Fair Market Range|range):\s*(?:Rs\s*)?(\d+)\s*-\s*(?:Rs\s*)?(\d+)', prompt, re.IGNORECASE)
+        
+        quoted_val = 0
+        fp_min_val = 0
+        fp_max_val = 0
+        
+        if quoted_match:
+            quoted_val = int(quoted_match.group(1))
+        if fair_range_match:
+            fp_min_val = int(fair_range_match.group(1))
+            fp_max_val = int(fair_range_match.group(2))
+        
+        if quoted_val == 0:
+            quoted_val = 1500
+        if fp_max_val == 0:
+            fp_min_val = int(quoted_val * 0.7)
+            fp_max_val = int(quoted_val * 0.9)
+            
+        # If quoted price is within range, counter offer is the quoted price.
+        # Otherwise, negotiate it to the max of the range.
+        if quoted_val <= fp_max_val:
+            counter_offer = quoted_val
+        else:
+            counter_offer = fp_max_val
+            
         return json.dumps({
-            "counter_offer": 1800,
-            "reasoning": "Market rate for this area is Rs 1500-2200",
-            "suggestion": "Rs 1800 is fair for this service and location",
+            "counter_offer_price": counter_offer,
+            "counter_offer": counter_offer,
+            "message_to_provider": f"Bhai, aapka rate Rs {quoted_val} thora zyada hai. Kya aap Rs {counter_offer} par maan jayenge?",
+            "message_to_citizen": f"Provider ka rate Rs {quoted_val} market se zyada tha. Humne unhe Rs {counter_offer} ka counter-offer diya hai.",
+            "reasoning": f"Market rate for this service is Rs {fp_min_val}-{fp_max_val}. Quoted rate Rs {quoted_val} is above market, counter-offering Rs {counter_offer}.",
+            "suggestion": f"Rs {counter_offer} is fair for this service and location"
         })
     elif "followup" in prompt_lower or "follow" in prompt_lower:
         return json.dumps({

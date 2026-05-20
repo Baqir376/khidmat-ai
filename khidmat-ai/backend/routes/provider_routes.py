@@ -32,9 +32,76 @@ class ProviderRegisterRequest(BaseModel):
     fixed_rate: Optional[int] = 0
     rate: Optional[int] = None
 
+class RateValidateRequest(BaseModel):
+    service_type_id: str
+    rate: int
+    area_name: str
+    pricing_type: Optional[str] = "hourly"
+
+@router.post("/providers/validate-rate")
+async def validate_rate(req: RateValidateRequest):
+    """Validate provider quoted rate against dynamic fair market price range."""
+    from services.pricing_service import calculate_fair_price
+    
+    # Calculate fair range
+    fair_range = calculate_fair_price(req.service_type_id, req.area_name, None, "normal")
+    min_val = fair_range["min"]
+    max_val = fair_range["max"]
+    
+    service_label = req.service_type_id.replace("_", " ").title()
+    area_label = req.area_name or "your area"
+    
+    if req.rate < min_val or req.rate > max_val:
+        if req.rate < min_val:
+            direction = f"too low (minimum is Rs {min_val:,})"
+        else:
+            direction = f"too high (maximum is Rs {max_val:,})"
+        return {
+            "valid": False,
+            "min": min_val,
+            "max": max_val,
+            "message": (
+                f"Your rate of Rs {req.rate:,} PKR is {direction} for {service_label} in {area_label}. "
+                f"The market value range is Rs {min_val:,} – Rs {max_val:,} PKR. "
+                f"Please set a rate within this range to complete registration."
+            ),
+        }
+    return {
+        "valid": True,
+        "min": min_val,
+        "max": max_val,
+        "message": f"Your rate of Rs {req.rate:,} is within the fair market range (Rs {min_val:,} – Rs {max_val:,}) for {service_label} in {area_label}.",
+    }
+
 @router.post("/providers/register")
 async def register_provider(req: ProviderRegisterRequest):
     """Register a real provider into the Firebase database."""
+    # Rate Validation
+    from services.pricing_service import calculate_fair_price
+    pricing_type = req.pricing_type or "hourly"
+    rate = req.rate or req.hourly_rate
+    if pricing_type == "fixed":
+        rate = req.fixed_rate or rate
+    elif pricing_type == "per_job":
+        rate = req.per_job_rate or rate
+
+    fair_range = calculate_fair_price(req.service_type_id, req.area_name, None, "normal")
+    min_val = fair_range["min"]
+    max_val = fair_range["max"]
+    service_label = req.service_type_id.replace("_", " ").title()
+    area_label = req.area_name or "your area"
+
+    if rate < min_val or rate > max_val:
+        direction = f"too low (minimum is Rs {min_val:,})" if rate < min_val else f"too high (maximum is Rs {max_val:,})"
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Your rate of Rs {rate:,} PKR is {direction} for {service_label} in {area_label}. "
+                f"The market value range is Rs {min_val:,} – Rs {max_val:,} PKR. "
+                f"Please set a rate within this range to complete registration."
+            )
+        )
+
     provider_id = req.supabase_user_id or f"PRV-{uuid.uuid4().hex[:8].upper()}"
     
     # Optional geocoding fallback if location coordinates are default
@@ -138,6 +205,44 @@ async def update_provider_profile(provider_id: str, req: ProviderUpdateRequest):
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
         
+    # Rate Validation for update
+    pricing_type = req.pricing_type or provider.get("pricing_type", "hourly")
+    new_rate = None
+    if req.rate is not None:
+        new_rate = req.rate
+    else:
+        if pricing_type == "hourly" and req.hourly_rate is not None:
+            new_rate = req.hourly_rate
+        elif pricing_type == "fixed" and req.fixed_rate is not None:
+            new_rate = req.fixed_rate
+        elif pricing_type == "per_job" and req.per_job_rate is not None:
+            new_rate = req.per_job_rate
+            
+    # If they are changing pricing_type but not providing rates, look up the existing rate for that pricing_type
+    if new_rate is None and req.pricing_type is not None:
+        if pricing_type == "hourly":
+            new_rate = provider.get("hourly_rate")
+        elif pricing_type == "fixed":
+            new_rate = provider.get("fixed_rate")
+        elif pricing_type == "per_job":
+            new_rate = provider.get("per_job_rate")
+            
+    # If a rate check is needed, perform it
+    if new_rate is not None:
+        service_type_id = provider.get("service_type_id")
+        area_name = req.area_name or provider.get("area_name")
+        if service_type_id and area_name:
+            from services.pricing_service import calculate_fair_price
+            fair_range = calculate_fair_price(service_type_id, area_name, None, "normal")
+            min_val = fair_range["min"]
+            max_val = fair_range["max"]
+
+            if new_rate < min_val or new_rate > max_val:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Rate {new_rate} PKR is out of the fair range. Kindly select a price between {min_val} and {max_val} PKR, as this is the market value for {service_type_id} in {area_name}."
+                )
+
     update_data = {}
     if req.name_en is not None:
         update_data["name_en"] = req.name_en

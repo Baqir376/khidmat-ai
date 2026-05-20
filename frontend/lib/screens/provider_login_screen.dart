@@ -324,6 +324,133 @@ class _ProviderLoginScreenState extends State<ProviderLoginScreen> {
   }
 
 
+  // ── Helper: Extract a clean human-readable message from backend detail ──────
+  /// Strips JSON braces, "Exception:" prefix, and returns a clean string.
+  String? _extractDetailMessage(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    String msg = raw.trim();
+    // Remove 'Exception: ' prefix
+    if (msg.startsWith('Exception: ')) msg = msg.substring(11).trim();
+    // If it looks like a JSON object, try to parse it
+    if (msg.startsWith('{')) {
+      try {
+        final Map<String, dynamic> parsed = jsonDecode(msg);
+        if (parsed.containsKey('error')) return parsed['error'].toString();
+        if (parsed.containsKey('message')) return parsed['message'].toString();
+        if (parsed.containsKey('detail')) {
+          final d = parsed['detail'];
+          if (d is String) return d;
+          if (d is Map) {
+            if (d.containsKey('error')) return d['error'].toString();
+            if (d.containsKey('message')) return d['message'].toString();
+          }
+        }
+      } catch (_) {}
+    }
+    return msg;
+  }
+
+  // ── Dialog: Show market range info when rate is out of range ────────────────
+  Future<void> _showMarketRangeDialog({
+    required String message,
+    int? marketMin,
+    int? marketMax,
+    required String serviceName,
+    required String areaName,
+  }) async {
+    final serviceLabel = _professions
+        .firstWhere((p) => p['id'] == serviceName, orElse: () => {'name': serviceName})['name']!;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.price_check, color: Colors.orange.shade700, size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Rate Out of Market Range',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message,
+              style: const TextStyle(fontSize: 14, height: 1.5),
+            ),
+            if (marketMin != null && marketMax != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FFF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF86EFAC)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '📊 Fair Market Rate for Your Area',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _RangeLabel(label: 'Min', value: 'Rs. $marketMin', color: Colors.green.shade700),
+                        const Text('—', style: TextStyle(color: Colors.grey)),
+                        _RangeLabel(label: 'Max', value: 'Rs. $marketMax', color: Colors.green.shade700),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Service: $serviceLabel | Area: $areaName',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            const Text(
+              '💡 Please update your rate to be within the market range shown above, then try registering again.',
+              style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryGreen,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text('Got It — I\'ll Update My Rate',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Main auth flow ──────────────────────────────────────────────
   Future<void> _authenticate() async {
     final email = _emailController.text.trim();
@@ -366,6 +493,58 @@ class _ProviderLoginScreenState extends State<ProviderLoginScreen> {
     }
 
     final rate = int.tryParse(rateText) ?? 1500;
+
+    // Validate rate with backend first
+    try {
+      final validateRes = await http.post(
+        Uri.parse('${ApiService.baseUrl}/providers/validate-rate'),
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode({
+          'service_type_id': _selectedProfession,
+          'rate': rate,
+          'area_name': area,
+          'pricing_type': _pricingType,
+        }),
+      ).timeout(const Duration(seconds: 8));
+
+      if (validateRes.statusCode == 200) {
+        final data = jsonDecode(validateRes.body);
+        if (data['valid'] == false) {
+          // Extract market range and show a helpful dialog
+          final int? marketMin = data['min'] is int ? data['min'] : (data['min'] as num?)?.toInt();
+          final int? marketMax = data['max'] is int ? data['max'] : (data['max'] as num?)?.toInt();
+          final String friendlyMsg = _extractDetailMessage(data['message']) ??
+              'Your rate Rs. $rate is outside the fair market range for this service.';
+          setState(() => _isLoading = false);
+          if (!mounted) return;
+          await _showMarketRangeDialog(
+            message: friendlyMsg,
+            marketMin: marketMin,
+            marketMax: marketMax,
+            serviceName: _selectedProfession,
+            areaName: area,
+          );
+          return;
+        }
+      } else {
+        // Non-200 response — extract human-readable message
+        String errMsg = 'Rate validation failed. Please check your rate.';
+        try {
+          final data = jsonDecode(validateRes.body);
+          errMsg = _extractDetailMessage(data['detail'].toString()) ?? errMsg;
+        } catch (_) {}
+        setState(() => _isLoading = false);
+        _snack('⚠️ $errMsg');
+        return;
+      }
+    } catch (e) {
+      debugPrint('Backend validate-rate call error: $e');
+      // Don't block registration if backend is unreachable — warn but continue
+      _snack('⚠️ Could not verify market rate. Proceeding with registration.');
+    }
 
     // 1. Phone OTP Verification
     final phoneVerified = await _showOtpVerificationDialog(phone);
@@ -492,9 +671,24 @@ class _ProviderLoginScreenState extends State<ProviderLoginScreen> {
             });
           } catch (_) {}
         }
+      } else {
+        String errMsg = 'Backend registration failed';
+        try {
+          final data = jsonDecode(res.body);
+          if (data is Map && data.containsKey('detail')) {
+            final detail = data['detail'];
+            errMsg = _extractDetailMessage(detail.toString()) ?? errMsg;
+          }
+        } catch (_) {}
+        _snack('❌ $errMsg');
+        setState(() => _isLoading = false);
+        return;
       }
     } catch (e) {
       debugPrint('Backend register call: $e');
+      _snack('❌ Failed to register with backend database. Please try again.');
+      setState(() => _isLoading = false);
+      return;
     }
 
     if (!mounted) return;
@@ -1021,6 +1215,35 @@ class _GenderChip extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Helper widget: Min/Max range label ───────────────────────────
+class _RangeLabel extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _RangeLabel({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        const SizedBox(height: 2),
+        Text(value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: color,
+            )),
+      ],
     );
   }
 }
