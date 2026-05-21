@@ -15,7 +15,7 @@ export function AdminChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: "ai", 
-      text: "Assalam-o-Alaikum Administrator. I am the Khidmat Copilot, connected directly to your live database. Ask me any queries about bookings, active provider earnings, or agent reasoning traces." 
+      text: "Assalam-o-Alaikum Administrator. I am the KaamSaaz Copilot, connected directly to your live database. Ask me any queries about bookings, active provider earnings, or agent reasoning traces." 
     }
   ]);
   const [input, setInput] = useState("");
@@ -54,7 +54,7 @@ export function AdminChatbot() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to communicate with Khidmat Copilot.");
+        throw new Error("Failed to communicate with KaamSaaz Copilot.");
       }
 
       const data = await res.json();
@@ -95,7 +95,7 @@ export function AdminChatbot() {
       <button 
         onClick={() => setIsOpen(prev => !prev)}
         className="fixed top-6 right-6 w-12 h-12 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/20 flex items-center justify-center text-slate-950 z-[100] hover:scale-105 active:scale-95 transition-all duration-200 border border-emerald-400/20"
-        title="Open Khidmat AI Copilot"
+        title="Open KaamSaaz Copilot"
         id="copilot-trigger-btn"
       >
         {isOpen ? <X className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
@@ -118,7 +118,7 @@ export function AdminChatbot() {
                   <Wrench className="w-4 h-4 text-emerald-400 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm tracking-wide uppercase font-mono">Khidmat Copilot</h3>
+                  <h3 className="text-white font-bold text-sm tracking-wide uppercase font-mono">KaamSaaz Copilot</h3>
                   <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 uppercase">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Live Telemetry Connected

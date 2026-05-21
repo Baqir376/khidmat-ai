@@ -252,7 +252,7 @@ export default function ProviderPortal() {
           isRegistering ? (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 max-w-lg mx-auto">
               <h3 className="text-xl font-semibold mb-2 text-center">Register as a Provider</h3>
-              <p className="text-white/50 text-sm text-center mb-6">Fill in your details to join the Khidmat AI network</p>
+              <p className="text-white/50 text-sm text-center mb-6">Fill in your details to join the KaamSaaz network</p>
 
               <div className="space-y-4 mb-6">
                 {/* Full Name */}
@@ -473,7 +473,7 @@ export default function ProviderPortal() {
                   {activeTab === "pending" ? "No pending requests right now" : "No confirmed jobs"}
                 </h3>
                 <p className="text-white/40 mt-2">
-                  {activeTab === "pending" ? "Waiting for citizen requests from Khidmat AI..." : "Accept incoming requests to build your schedule."}
+                  {activeTab === "pending" ? "Waiting for citizen requests from KaamSaaz..." : "Accept incoming requests to build your schedule."}
                 </p>
               </div>
             ) : (

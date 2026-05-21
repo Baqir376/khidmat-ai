@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Khidmat AI - Next-Gen Service Marketplace",
+  title: "KaamSaaz - Next-Gen Service Marketplace",
   description: "Pakistan's first fully autonomous AI-orchestrated home service marketplace.",
 };
 

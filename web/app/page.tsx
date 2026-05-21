@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/10">
             <Shield className="w-8 h-8 text-emerald-400" />
           </div>
-          <h1 className="text-xl font-black text-white tracking-widest uppercase">KHIDMAT AI</h1>
+          <h1 className="text-xl font-black text-white tracking-widest uppercase">KAAMSAAZ</h1>
           <p className="text-slate-500 text-xs mt-1 uppercase tracking-wider">Control Centre Terminal</p>
         </div>
 

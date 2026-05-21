@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Wrench className="w-4 h-4 text-emerald-400" />
             </div>
             <span className="text-white font-extrabold tracking-wider font-mono text-sm uppercase bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">
-              Khidmat Admin
+              KaamSaaz Admin
             </span>
           </div>
         </div>
