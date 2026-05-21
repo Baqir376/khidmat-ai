@@ -1,5 +1,5 @@
 """
-Khidmat AI — Pydantic Data Models
+KaamSaaz — Pydantic Data Models
 All request/response schemas and data structures.
 """
 from pydantic import BaseModel, Field

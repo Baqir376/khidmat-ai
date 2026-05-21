@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 7: Demand Prediction Agent
+KaamSaaz — Agent 7: Demand Prediction Agent
 Predicts service demand surges using weather, historical data, and events.
 """
 import time

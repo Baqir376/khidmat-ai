@@ -310,8 +310,8 @@ class _AIChatbotScreenState extends State<AIChatbotScreen> {
         });
         Timer(const Duration(milliseconds: 100), _scrollToBottom);
 
-        // Dynamic TTS Reading
-        _speak(reply);
+        // Dynamic TTS Reading (Auto-speak disabled)
+        // _speak(reply);
 
         // Check if redirect required
         if (action == 'show_providers' && serviceType != null) {

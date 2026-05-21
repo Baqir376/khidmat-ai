@@ -1,5 +1,5 @@
 """
-Khidmat AI — Google Maps Service
+KaamSaaz — Google Maps Service
 Geocoding, distance calculation, and nearby places.
 Uses Google Maps API when available, falls back to Haversine math.
 """

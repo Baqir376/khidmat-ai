@@ -1,5 +1,5 @@
 """
-Khidmat AI — FastAPI Main Entry Point
+KaamSaaz — FastAPI Main Entry Point
 Serves the complete API for mobile app, web dashboard, and WhatsApp/Telegram bots.
 """  # v2
 from fastapi import FastAPI
@@ -37,11 +37,11 @@ async def lifespan(app: FastAPI):
         print(f"[Startup] WARNING: Seed check failed ({e}) - continuing anyway")
 
     yield  # App runs here
-    print("[Shutdown] Khidmat AI shutting down")
+    print("[Shutdown] KaamSaaz shutting down")
 
 
 app = FastAPI(
-    title="Khidmat AI",
+    title="KaamSaaz",
     description=(
         "Agentic AI Service Orchestrator for Pakistan's Informal Economy. "
         "7-agent pipeline: Intent → Discovery → Matching → Negotiation → "

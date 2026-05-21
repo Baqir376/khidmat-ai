@@ -1,5 +1,5 @@
 """
-Khidmat AI — Configuration
+KaamSaaz — Configuration
 All environment variables and settings centralized here.
 API keys are loaded from .env and NEVER hardcoded.
 """
@@ -58,7 +58,7 @@ class Config:
     SENDGRID_API_KEY: str = os.getenv("SENDGRID_API_KEY", "")
 
     # App Settings
-    APP_NAME: str = "Khidmat AI"
+    APP_NAME: str = "KaamSaaz"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
     HOST: str = os.getenv("HOST", "0.0.0.0")

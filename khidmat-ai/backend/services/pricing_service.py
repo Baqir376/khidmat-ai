@@ -1,5 +1,5 @@
 """
-Khidmat AI — Pricing Engine
+KaamSaaz — Pricing Engine
 Dynamic pricing based on service type, area, time, and urgency.
 All prices in PKR. Uses real Karachi area multipliers.
 """

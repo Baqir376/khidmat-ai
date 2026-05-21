@@ -18,7 +18,7 @@ try:
     # This will test if the credentials work for sending messages
     # and if the trial account limits it.
     msg = client.messages.create(
-        body="Khidmat AI Twilio credentials test.",
+        body="KaamSaaz Twilio credentials test.",
         from_=twilio_num,
         to="+923331234567"
     )

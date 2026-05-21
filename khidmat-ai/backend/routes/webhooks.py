@@ -1,5 +1,5 @@
 """
-Khidmat AI — Messaging Webhooks
+KaamSaaz — Messaging Webhooks
 WhatsApp (Twilio) and Telegram webhook endpoints.
 """
 from fastapi import APIRouter, Request, BackgroundTasks, HTTPException
@@ -46,7 +46,7 @@ async def process_whatsapp_booking(user_input: str, from_number: str):
         # Acknowledge receipt
         await send_whatsapp(
             to=from_number,
-            message="Khidmat AI: I'm processing your request to find the best provider..."
+            message="KaamSaaz: I'm processing your request to find the best provider..."
         )
 
         # Run the full agent pipeline

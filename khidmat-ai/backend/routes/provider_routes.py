@@ -1,5 +1,5 @@
 """
-Khidmat AI — Provider Routes
+KaamSaaz — Provider Routes
 Provider search, nearby providers, and profile management.
 """
 from fastapi import APIRouter, HTTPException

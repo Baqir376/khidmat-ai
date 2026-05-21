@@ -10,7 +10,7 @@ import 'ai_chatbot_screen.dart';
 import '../services/location_service.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'user_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -205,12 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _logout() async {
-    await Supabase.instance.client.auth.signOut();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/welcome');
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -220,44 +215,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: Text(lang.t('Khidmat AI', 'خدمت اے آئی')),
+        title: Text(lang.t('KaamSaaz', 'خدمت اے آئی', 'KaamSaaz')),
         actions: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue, width: 0.5),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.security, color: Colors.blue, size: 12),
-                SizedBox(width: 4),
-                Text('TEE SECURE', style: TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
-              ],
-            ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            tooltip: lang.t('Settings', 'سیٹنگز', 'Settings'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+              );
+            },
           ),
           const SizedBox(width: 8),
-          // Language Switcher button
-          TextButton(
-            onPressed: () {
-              lang.toggle();
-            },
-            child: Text(
-              lang.isUrdu ? 'English' : 'اردو',
-              style: const TextStyle(
-                color: AppTheme.primaryGreen,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout), 
-            onPressed: _logout,
-          ),
         ],
       ),
       body: _currentIndex == 0 
@@ -281,23 +251,23 @@ class _HomeScreenState extends State<HomeScreen> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.add_circle_outline),
-            label: lang.t('New Request', 'نئی درخواست'),
+            label: lang.t('New Request', 'نئی درخواست', 'Naya Request'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.smart_toy_outlined),
-            label: lang.t('AI Chatbot', 'اے آئی چیٹ'),
+            label: lang.t('AI Chatbot', 'اے آئی چیٹ', 'AI Chatbot'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.hourglass_empty),
-            label: lang.t('Pending', 'پینڈنگ'),
+            label: lang.t('Pending', 'پینڈنگ', 'Pending'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.check_circle_outline),
-            label: lang.t('Jobs Taken', 'فعال کام'),
+            label: lang.t('Jobs Taken', 'فعال کام', 'Jobs Taken'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.history),
-            label: lang.t('Completed', 'مکمل شدہ'),
+            label: lang.t('Completed', 'مکمل شدہ', 'Completed'),
           ),
         ],
       ),
@@ -316,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                lang.t("What service do you need today?", "آج آپ کو کس سروس کی ضرورت ہے؟"),
+                lang.t("What service do you need today?", "آج آپ کو کس سروس کی ضرورت ہے؟", "Aaj aap ko kis service ki zaroorat hai?"),
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -324,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                lang.t("Type in Roman Urdu, Urdu, or English (e.g. 'Mera AC kharab hai')", "اردو، رومن یا انگریزی میں لکھیں (جیسے 'میرا پنکھا خراب ہے')"),
+                lang.t("Type in Roman Urdu, Urdu, or English (e.g. 'Mera AC kharab hai')", "اردو، رومن یا انگریزی میں لکھیں (جیسے 'میرا پنکھا خراب ہے')", "Urdu, Roman ya English mein likhein (jaise 'Mera AC kharab hai')"),
                 style: const TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 20),
@@ -361,13 +331,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Column(
+                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               _hasRealLocation
-                                  ? (_customAddress != null ? lang.t('📍 Service Location Selected', '📍 منتخب کردہ مقام') : lang.t('📍 Live Location Active', '📍 لائیو لوکیشن فعال ہے'))
-                                  : lang.t('📡 Getting Your Location...', '📡 لوکیشن حاصل کی جا رہی ہے...'),
+                                  ? (_customAddress != null ? lang.t('📍 Service Location Selected', '📍 منتخب کردہ مقام', '📍 Service Location Selected') : lang.t('📍 Live Location Active', '📍 لائیو لوکیشن فعال ہے', '📍 Live Location Active'))
+                                  : lang.t('📡 Getting Your Location...', '📡 لوکیشن حاصل کی جا رہی ہے...', '📡 Location hasil ki ja rahi hai...'),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -376,8 +346,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Text(
                               _hasRealLocation
-                                  ? (_customAddress ?? lang.t('Showing nearest professionals to you', 'آپ کے قریبی خدمت گار دکھائے جا رہے ہیں'))
-                                  : lang.t('Tap to allow location access', 'لوکیشن کی اجازت دینے کے لیے ٹیپ کریں'),
+                                  ? (_customAddress ?? lang.t('Showing nearest professionals to you', 'آپ کے قریبی خدمت گار دکھائے جا رہے ہیں', 'Aap ke qareebi professionals dikhaye ja rahe hain'))
+                                  : lang.t('Tap to allow location access', 'لوکیشن کی اجازت دینے کے لیے ٹیپ کریں', 'Location access allow karne ke liye tap karain'),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 11,

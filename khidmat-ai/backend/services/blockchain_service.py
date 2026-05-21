@@ -1,5 +1,5 @@
 """
-Khidmat AI — Blockchain Service
+KaamSaaz — Blockchain Service
 Records booking hashes on Polygon Amoy Testnet for immutable receipts.
 Falls back to mock recording when Web3 is not configured.
 """

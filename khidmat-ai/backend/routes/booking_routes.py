@@ -1,5 +1,5 @@
 """
-Khidmat AI — Booking Routes
+KaamSaaz — Booking Routes
 Core API endpoints for the booking pipeline and booking management.
 """
 from fastapi import APIRouter, HTTPException

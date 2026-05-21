@@ -1,5 +1,5 @@
 """
-Khidmat AI — Supabase Database Service
+KaamSaaz — Supabase Database Service
 Replaced Firebase/SQLite with a production-grade Supabase REST client.
 Uses httpx for async, zero-dependency REST calls to Supabase.
 """

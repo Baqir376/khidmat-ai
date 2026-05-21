@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 2: Discovery Agent
+KaamSaaz — Agent 2: Discovery Agent
 Finds nearby available providers using location, service type, and filters.
 Uses Google Maps for distance calculation, weather for outdoor risk.
 """

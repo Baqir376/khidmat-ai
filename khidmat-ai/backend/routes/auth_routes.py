@@ -1,5 +1,5 @@
 """
-Khidmat AI — Authentication Routes
+KaamSaaz — Authentication Routes
 OTP generation, sending, and verification for user/provider registrations.
 """
 from fastapi import APIRouter, HTTPException
@@ -38,7 +38,7 @@ async def send_otp(req: SendOTPRequest):
     }
     
     # Send SMS via Twilio or console/Telegram fallback
-    message = f"Your Khidmat AI verification code is: {otp}. Valid for 5 minutes."
+    message = f"Your KaamSaaz verification code is: {otp}. Valid for 5 minutes."
     sms_res = await send_sms(to=phone, message=message)
     
     if not sms_res.get("success", False):

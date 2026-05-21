@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from services.notification_service import notification_service
 
 def run_test():
-    print("=== Khidmat AI Push Notification Tester ===")
+    print("=== KaamSaaz Push Notification Tester ===")
     print("To test a push notification, we need your device's FCM Token.")
     print("If you just ran the Flutter app, look in your debug console for:")
     print("'FCM Token: <your-long-token-here>'")

@@ -1,5 +1,5 @@
 """
-Khidmat AI — Interactive Test Suite for AI Chatbot
+KaamSaaz — Interactive Test Suite for AI Chatbot
 Tests multiple conversation turns, language detection, intent mapping,
 and action routing.
 """

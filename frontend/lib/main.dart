@@ -69,7 +69,7 @@ class KhidmatAIApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Khidmat AI',
+      title: 'KaamSaaz',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const AuthGate(),

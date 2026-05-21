@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 6: FollowUp Agent
+KaamSaaz — Agent 6: FollowUp Agent
 Handles post-booking automation: reminders, status updates, reviews, disputes.
 """
 import time
@@ -59,11 +59,11 @@ async def run_followup_agent(
             provider_reminder = await send_whatsapp(
                 to="+923009876543",
                 message=(
-                    f"⏰ *Khidmat AI — Job Reminder*\n\n"
+                    f"⏰ *KaamSaaz — Job Reminder*\n\n"
                     f"Aapka kaam {scheduled_time} par hai.\n"
                     f"Service: {service_type}\n"
                     f"Booking: {booking_id}\n\n"
-                    f"Waqt par pohanchein! _Khidmat AI_ 🤖"
+                    f"Waqt par pohanchein! _KaamSaaz_ 🤖"
                 ),
             )
             actions_taken.append(f"Provider reminder sent (SID: {provider_reminder.get('sid', 'N/A')})")
@@ -73,7 +73,7 @@ async def run_followup_agent(
             review_msg = await send_whatsapp(
                 to="+923001234567",
                 message=(
-                    f"⭐ *Khidmat AI — Review Request*\n\n"
+                    f"⭐ *KaamSaaz — Review Request*\n\n"
                     f"{provider_name} ki service kaisi rahi?\n"
                     f"1-5 stars mein rating dein:\n\n"
                     f"Reply karein: RATE 1/2/3/4/5\n"
@@ -88,10 +88,10 @@ async def run_followup_agent(
             status_msg = await send_whatsapp(
                 to="+923009876543",
                 message=(
-                    f"📊 *Khidmat AI — Status Check*\n\n"
+                    f"📊 *KaamSaaz — Status Check*\n\n"
                     f"Booking {booking_id} ka kya status hai?\n"
                     f"Reply: EN_ROUTE / ARRIVED / IN_PROGRESS / COMPLETED\n\n"
-                    f"_Khidmat AI_ 🤖"
+                    f"_KaamSaaz_ 🤖"
                 ),
             )
             actions_taken.append(f"Status check sent to provider")
@@ -127,11 +127,11 @@ message_to_citizen, message_to_provider, reasoning"""
             completion_msg = await send_whatsapp(
                 to="+923001234567",
                 message=(
-                    f"✅ *Khidmat AI — Service Complete*\n\n"
+                    f"✅ *KaamSaaz — Service Complete*\n\n"
                     f"Booking {booking_id} mukammal ho gaya!\n"
                     f"Provider: {provider_name}\n"
                     f"Service: {service_type}\n\n"
-                    f"Shukria Khidmat AI use karne ka! 🙏\n"
+                    f"Shukria KaamSaaz use karne ka! 🙏\n"
                     f"_Rating dena na bhoolein!_ ⭐"
                 ),
             )

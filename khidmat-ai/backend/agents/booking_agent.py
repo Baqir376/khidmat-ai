@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 5: Booking Agent
+KaamSaaz — Agent 5: Booking Agent
 Creates confirmed bookings, sends notifications, records on blockchain.
 This is the ACTION SIMULATION agent — critical for hackathon scoring.
 """

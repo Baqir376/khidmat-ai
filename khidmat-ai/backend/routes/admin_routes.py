@@ -1,5 +1,5 @@
 """
-Khidmat AI — Admin Routes
+KaamSaaz — Admin Routes
 Dashboard analytics, booking stats, and system management with optimized in-memory caching.
 """
 import time
@@ -123,7 +123,7 @@ async def admin_copilot(req: AdminCopilotRequest):
         ]
 
         # Build comprehensive system prompt with marketplace guardrails
-        system_instruction = f"""You are the Khidmat Copilot, a highly sophisticated AI marketplace orchestrator and dashboard assistant for the Khidmat AI marketplace in Pakistan.
+        system_instruction = f"""You are the Khidmat Copilot, a highly sophisticated AI marketplace orchestrator and dashboard assistant for the KaamSaaz marketplace in Pakistan.
 
 Your absolute priority is to answer the administrator's queries precisely and accurately using ONLY the live, real-time marketplace data provided below.
 

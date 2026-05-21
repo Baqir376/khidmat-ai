@@ -22,7 +22,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Welcome to Khidmat AI',
+                'Welcome to KaamSaaz',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,

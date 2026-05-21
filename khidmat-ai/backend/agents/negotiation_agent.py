@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 4: Negotiation Agent
+KaamSaaz — Agent 4: Negotiation Agent
 Assesses provider pricing against market rates and suggests counter-offers.
 """
 import time

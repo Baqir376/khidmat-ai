@@ -1,5 +1,5 @@
 """
-Khidmat AI — Gemini Service
+KaamSaaz — Gemini Service
 Wrapper for Google Generative AI SDK. Handles all LLM calls.
 """
 import json
@@ -387,19 +387,19 @@ def _mock_response(prompt: str) -> str:
 
     # ---- Smart service detection from the actual user message ----
     service_keywords = {
-        "plumber": ["plumber", "nalka", "pipe", "drain", "nala", "pani", "plumb"],
-        "electrician": ["electrician", "bijli", "electric", "wiring", "switch", "fan", "light", "socket"],
-        "ac_mechanic": ["ac_mechanic", "ac", "air condition", "cooling", "thanda", "ac wala", "mechanic"],
-        "house_maid": ["house_maid", "maid", "safai", "cleaning", "kaam wali", "dhona", "sweeper", "dusting"],
-        "carpenter": ["carpenter", "badhai", "wood", "furniture", "almari", "door"],
-        "painter": ["painter", "paint", "rang", "wall", "colour", "rangan"],
-        "gardener": ["gardener", "mali", "lawn", "plant", "pauda", "ghas", "grass"],
-        "tutor": ["tutor", "teacher", "tuition", "padhai", "sir", "madam", "study"],
-        "beautician": ["beautician", "beauty", "makeup", "parlour", "mehnd", "facial", "hair"],
-        "cook": ["cook", "cooking", "khana", "food", "bawarchi", "kitchen"],
-        "generator": ["generator", "genset"],
-        "welder": ["welder", "weld", "loha", "iron", "gate"],
-        "tiler": ["tiler", "tile", "marble", "floor"],
+        "plumber": ["plumber", "nalka", "pipe", "drain", "nala", "pani", "plumb", "leak", "pani band", "nalki", "pipe leak", "toti", "tooti", "tap", "nal"],
+        "electrician": ["electrician", "bijli", "electric", "wiring", "switch", "fan", "light", "socket", "pankha", "current", "wire", "board", "bulb", "tube light"],
+        "ac_mechanic": ["ac_mechanic", "ac", "air condition", "cooling", "thanda", "ac wala", "mechanic", "a.c", "a/c", "gas", "freon", "service", "ac service"],
+        "house_maid": ["house_maid", "maid", "safai", "safayi", "safayee", "saaf", "jharu", "pocha", "cleaning", "kaam wali", "dhona", "sweeper", "dusting", "ghar ki safai"],
+        "carpenter": ["carpenter", "badhai", "wood", "furniture", "almari", "door", "darwaza", "lakri", "lakdi", "bed", "sofa", "chair", "table", "kursi", "mez", "almira"],
+        "painter": ["painter", "paint", "rang", "wall", "colour", "rangan", "deewar", "color", "rogan", "distemper", "polish"],
+        "gardener": ["gardener", "mali", "lawn", "plant", "pauda", "ghas", "grass", "garden", "tree", "poda", "podhay", "podai", "poday", "bagh"],
+        "tutor": ["tutor", "teacher", "tuition", "padhai", "sir", "madam", "study", "ustad", "math", "science", "english", "parhai", "parhana", "academy", "school"],
+        "beautician": ["beautician", "beauty", "makeup", "parlour", "mehnd", "facial", "hair", "salon", "cutting", "mehndi", "waxing", "threading", "bridal", "dulhan"],
+        "cook": ["cook", "cooking", "khana", "food", "bawarchi", "kitchen", "chef", "roti", "salan", "pakana", "chawal", "biryani", "daawat"],
+        "generator": ["generator", "genset", "backup", "light chali gayi", "gen", "janretar", "janrator"],
+        "welder": ["welder", "weld", "loha", "iron", "gate", "jali", "grill", "steel", "tanki"],
+        "tiler": ["tiler", "tile", "marble", "floor", "mezzanine", "bathroom tiles", "farash", "farsh", "pathar", "marbal", "tail", "tailan", "tailain"],
     }
     
     detected_service = "plumber"  # safe default
@@ -499,7 +499,7 @@ def _mock_response(prompt: str) -> str:
             "reminder_message": "Aapka appointment 1 ghante baad hai",
             "satisfaction_question": "Service kaisi rahi? 1-5 stars dein",
         })
-    elif "you are khidmat ai" in prompt_lower or "customer now says:" in prompt_lower or "dialogue" in prompt_lower:
+    elif "you are kaamsaaz" in prompt_lower or "customer now says:" in prompt_lower or "dialogue" in prompt_lower:
         # Detect if we already have service and time hint
         # Or if we can parse it from the prompt/history/msg
         msg_match = re.search(r'customer now says:\s*(.*)', prompt, re.IGNORECASE)
@@ -527,9 +527,9 @@ def _mock_response(prompt: str) -> str:
                 
         # Let's check time hint
         time_hint = None
-        # Common time words
-        time_words = ["aaj", "shaam", "baje", "now", "immediately", "urgent", "today", "tomorrow", "pm", "am", "morning", "evening", "6", "7", "8", "9", "10"]
-        for w in time_words:
+        # Common EXACT time words (excluding generic dates like kal, aaj)
+        exact_time_words = ["baje", "bajay", "now", "immediately", "urgent", "pm", "am", "morning", "evening", "6", "7", "8", "9", "10", "subha", "shaam", "raat", "dophar"]
+        for w in exact_time_words:
             if w in msg_str_lower:
                 time_hint = w
                 break
@@ -539,22 +539,26 @@ def _mock_response(prompt: str) -> str:
             if time_match and "not mentioned" not in time_match.group(1):
                 time_hint = time_match.group(1).strip()
 
+        # Check if the time hint is actually just a generic date
+        generic_dates = ["kal", "aaj", "parson", "tomorrow", "today", "parso"]
+        is_generic_date_only = (time_hint in generic_dates) if time_hint else False
+
         # Let's generate a proper conversational response based on what is detected
-        if service and time_hint:
+        if service and time_hint and not is_generic_date_only:
             service_title = service.replace("_", " ").title()
-            if "aaj" in msg_str_lower or "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str:
+            if "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str or "roman" in prompt_lower:
                 return f"Theek hai, aapke liye {service_title} book karte hain. Main abhi providers dhoondh raha hoon. [READY_TO_BOOK]"
             else:
                 return f"Sure! I am booking a {service_title} for you at {time_hint}. Searching for recommended providers now. [READY_TO_BOOK]"
         elif service:
             service_title = service.replace("_", " ").replace("Ac", "AC").lower()
             if "ur" in prompt_lower or "کھا" in msg_str or "بجے" in msg_str or "bijli" in msg_str_lower or "fan" in msg_str_lower or "kharab" in msg_str_lower or "roman" in prompt_lower:
-                return f"ap ko {service_title} ki zaroorat hai kindly time confirm kr dein phir main recommended providers batata hu ap ko"
+                return f"ap ko {service_title} ki zaroorat hai kindly time confirm kr dein"
             else:
-                return f"You need a {service_title}. Kindly confirm the time so I can show you recommended providers."
+                return f"You need a {service_title}. Kindly confirm the exact time."
         else:
             if "assalam" in msg_str_lower or "hello" in msg_str_lower or "hi" in msg_str_lower:
-                return "Wa Alaikum Assalam! I'm your Khidmat AI assistant. 😊\n\nJust tell me what you need:\n• \"Mera pankha kharab hai\"\n• \"Plumber chahiye\"\n• \"Need a tutor for my kid\"\n\nHow can I help you today?"
+                return "Wa Alaikum Assalam! I'm your KaamSaaz assistant. 😊\n\nJust tell me what you need:\n• \"Mera pankha kharab hai\"\n• \"Plumber chahiye\"\n• \"Need a tutor for my kid\"\n\nHow can I help you today?"
             else:
                 return "I can help you book plumbers, electricians, AC mechanics, and more. Please let me know what issue you are facing!"
     else:

@@ -1,5 +1,5 @@
 """
-Khidmat AI — Coordinator Agent
+KaamSaaz — Coordinator Agent
 Orchestrates the full 7-agent pipeline: Intent → Discovery → Matching →
 Negotiation → Booking → FollowUp → DemandPrediction.
 This is the ROOT orchestrator — the single entry point for all service requests.

@@ -1,5 +1,5 @@
 """
-Khidmat AI — Email Service
+KaamSaaz — Email Service
 Sends verification emails and alerts.
 Falls back to Telegram Bot notification and console logging during development.
 """
@@ -37,7 +37,7 @@ async def send_email(to_email: str, subject: str, body: str) -> dict:
                 ],
                 "from": {
                     "email": SENDGRID_FROM_EMAIL,
-                    "name": "Khidmat AI"
+                    "name": "KaamSaaz"
                 },
                 "content": [
                     {
@@ -69,7 +69,7 @@ async def send_email(to_email: str, subject: str, body: str) -> dict:
             from email.mime.multipart import MIMEMultipart
 
             msg = MIMEMultipart()
-            msg['From'] = f"Khidmat AI <{SMTP_EMAIL}>"
+            msg['From'] = f"KaamSaaz <{SMTP_EMAIL}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))

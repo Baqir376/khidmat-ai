@@ -373,22 +373,6 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> with 
                   ),
                 ),
                 const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.blue, width: 0.5),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.security, color: Colors.blue, size: 10),
-                      SizedBox(width: 2),
-                      Text('TEE SECURE', style: TextStyle(color: Colors.blue, fontSize: 9, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 6),
                 if (_locationSharing)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

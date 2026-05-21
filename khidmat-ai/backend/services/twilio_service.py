@@ -1,5 +1,5 @@
 """
-Khidmat AI — Twilio Service
+KaamSaaz — Twilio Service
 WhatsApp messages, SMS, and voice calls via Twilio API.
 Falls back to console logging when Twilio credentials are not configured.
 """
@@ -133,7 +133,7 @@ async def send_booking_confirmation_whatsapp(
 ) -> dict:
     """Send structured booking confirmation via WhatsApp."""
     message = (
-        f"*Khidmat AI -- Booking Confirmed*\n\n"
+        f"*KaamSaaz -- Booking Confirmed*\n\n"
         f"Booking ID: {booking_id}\n"
         f"Service: {service_type}\n"
         f"Provider: {provider_name}\n"
@@ -146,7 +146,7 @@ async def send_booking_confirmation_whatsapp(
         message += f"\nSafety Link: {safety_link}\n"
         message += "Share this link with your trusted contact.\n"
 
-    message += "\n_Powered by Khidmat AI_"
+    message += "\n_Powered by KaamSaaz_"
 
     return await send_whatsapp(phone, message)
 
@@ -162,7 +162,7 @@ async def send_provider_job_request_whatsapp(
 ) -> dict:
     """Send job request notification to provider via WhatsApp."""
     message = (
-        f"*Khidmat AI -- Naya Kaam*\n\n"
+        f"*KaamSaaz -- Naya Kaam*\n\n"
         f"Booking: {booking_id}\n"
         f"Service: {service_type}\n"
         f"Customer: {citizen_name}\n"
@@ -170,7 +170,7 @@ async def send_provider_job_request_whatsapp(
         f"Time: {scheduled_time}\n"
         f"Rate: Rs {quoted_price}\n\n"
         f"Reply 'ACCEPT' ya 'REJECT' karein.\n"
-        f"\n_Khidmat AI_"
+        f"\n_KaamSaaz_"
     )
 
     return await send_whatsapp(phone, message)
@@ -185,11 +185,11 @@ async def send_reminder_whatsapp(
 ) -> dict:
     """Send appointment reminder via WhatsApp."""
     message = (
-        f"*Khidmat AI -- Reminder*\n\n"
+        f"*KaamSaaz -- Reminder*\n\n"
         f"Aapka appointment {minutes_before} minute baad hai:\n"
         f"{provider_name} ({service_type})\n"
         f"{scheduled_time}\n\n"
-        f"_Khidmat AI_"
+        f"_KaamSaaz_"
     )
 
     return await send_whatsapp(phone, message)

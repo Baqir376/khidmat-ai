@@ -1,5 +1,5 @@
 """
-Khidmat AI — Agent 1: Intent Agent
+KaamSaaz — Agent 1: Intent Agent
 Extracts service type, location, date/time, and urgency from natural language.
 Supports Roman Urdu, Urdu, English, and Sindhi.
 """
@@ -12,7 +12,7 @@ from services.firebase_service import save_agent_trace
 
 AGENT_NAME = "IntentAgent"
 
-SYSTEM_INSTRUCTION = """You are the IntentAgent for Khidmat AI, a service marketplace in Pakistan.
+SYSTEM_INSTRUCTION = """You are the IntentAgent for KaamSaaz, a service marketplace in Pakistan.
 Your job is to extract structured information from user messages in Roman Urdu, Urdu, English, or Sindhi.
 
 Extract these fields:
@@ -39,7 +39,7 @@ Common Roman Urdu mappings:
 - "tiler" / "tile wala" / "mason" = tiler
 
 Time mappings:
-- "kal" = tomorrow, "parson" = day after tomorrow
+- "kal" = tomorrow, "parso" / "parson" = day after tomorrow
 - "subah" = 9:00, "dopehar" = 14:00, "shaam" = 18:00
 - "abhi" / "fori" = now (emergency)
 
@@ -261,16 +261,24 @@ def _resolve_date(date_val) -> str:
             pass
 
     # 4. Fallback to relative mapping
-    mapping = {
-        "today": today,
-        "aaj": today,
-        "tomorrow": today + timedelta(days=1),
-        "kal": today + timedelta(days=1),
-        "parson": today + timedelta(days=2),
-        "day after tomorrow": today + timedelta(days=2),
-    }
     date_lower = date_str.lower().strip()
-    resolved = mapping.get(date_lower, today + timedelta(days=1))
+    if "parso" in date_lower or "parson" in date_lower or "day after tomorrow" in date_lower:
+        resolved = today + timedelta(days=2)
+    elif "tomorrow" in date_lower or "kal" in date_lower:
+        resolved = today + timedelta(days=1)
+    elif "today" in date_lower or "aaj" in date_lower:
+        resolved = today
+    else:
+        mapping = {
+            "today": today,
+            "aaj": today,
+            "tomorrow": today + timedelta(days=1),
+            "kal": today + timedelta(days=1),
+            "parso": today + timedelta(days=2),
+            "parson": today + timedelta(days=2),
+            "day after tomorrow": today + timedelta(days=2),
+        }
+        resolved = mapping.get(date_lower, today + timedelta(days=1))
     return resolved.strftime("%Y-%m-%d")
 
 

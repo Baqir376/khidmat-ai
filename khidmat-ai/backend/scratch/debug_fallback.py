@@ -1,6 +1,6 @@
 import re
 
-prompt = """You are the IntentAgent for Khidmat AI, a service marketplace in Pakistan.
+prompt = """You are the IntentAgent for KaamSaaz, a service marketplace in Pakistan.
 Your job is to extract structured information from user messages in Roman Urdu, Urdu, English, or Sindhi.
 
 Extract these fields:

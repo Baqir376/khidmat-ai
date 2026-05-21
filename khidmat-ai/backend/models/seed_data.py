@@ -1,5 +1,5 @@
 """
-Khidmat AI — Seed Data
+KaamSaaz — Seed Data
 200 realistic Pakistani providers across 10 service types and 20 Karachi areas.
 All names, areas, pricing, and bios are Pakistan-specific. No placeholders.
 """

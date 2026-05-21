@@ -1,5 +1,5 @@
 """
-Khidmat AI — AI Chatbot Routes
+KaamSaaz — AI Chatbot Routes
 Conversational AI endpoint that understands Roman Urdu/Urdu/English,
 extracts booking intent, asks for missing details, and routes to providers.
 """
@@ -23,6 +23,7 @@ class AIChatRequest(BaseModel):
     lat: float = 24.8607
     lng: float = 67.0099
     language: str = "en"   # "en" | "ur"
+    is_voice: bool = False
 
 class AIChatResponse(BaseModel):
     reply: str
@@ -37,36 +38,25 @@ class AIChatResponse(BaseModel):
 # ── Service keyword maps ──────────────────────────────────────────────────────
 
 SERVICE_KEYWORDS: Dict[str, List[str]] = {
-    "plumber":      ["plumber", "pipe", "tap", "nalka", "nal", "pani", "leak", "pani band",
-                     "nalki", "pipe leak", "پلمبر", "نل", "پانی", "لیک"],
-    "electrician":  ["electric", "bijli", "current", "wire", "socket", "switch", "light",
-                     "pankha", "fan", "فین", "بجلی", "پنکھا", "سوئچ", "الیکٹریشن"],
-    "ac_mechanic":  ["ac", "a.c", "a/c", "air condition", "cooling", "thanda", "ٹھنڈا",
-                     "اے سی", "کولنگ", "thanda nahi kar raha", "gas"],
-    "carpenter":    ["carpenter", "wood", "darwaza", "door", "furniture", "almari",
-                     "بڑھئی", "لکڑی", "دروازہ", "الماری"],
-    "painter":      ["paint", "rang", "wall", "deewar", "color", "رنگ", "دیوار", "پینٹ"],
-    "house_maid":   ["maid", "kaam wali", "cleaning", "safai", "ghar ki safai",
-                     "ملازمہ", "کام والی", "صفائی", "گھر صاف"],
-    "gardener":     ["garden", "mali", "plant", "tree", "lawn", "grass",
-                     "مالی", "باغ", "گھاس", "پودا"],
-    "tutor":        ["tutor", "teacher", "ustad", "padhai", "study", "math", "science",
-                     "استاد", "پڑھائی", "ٹیوٹر"],
-    "beautician":   ["beauty", "makeup", "parlour", "mehendi", "waxing", "facial",
-                     "بیوٹیشن", "میک اپ", "مہندی"],
-    "cook":         ["cook", "khana", "food", "bawarchi", "cooking",
-                     "باورچی", "کھانا", "کوک"],
-    "generator":    ["generator", "genset", "backup", "light chali gayi",
-                     "جنریٹر", "بجلی چلی گئی"],
-    "welder":       ["weld", "loha", "iron", "gate", "jali", "ویلڈر", "لوہا"],
-    "tiler":        ["tile", "floor", "mezzanine", "bathroom tiles",
-                     "ٹائل", "فرش", "ٹائل لگانا"],
+    "plumber":      ["plumber", "pipe", "tap", "nalka", "nal", "pani", "leak", "pani band", "nalki", "pipe leak", "toti", "tooti", "drain", "nala", "پلمبر", "نل", "پانی", "لیک"],
+    "electrician":  ["electric", "bijli", "current", "wire", "socket", "switch", "light", "pankha", "fan", "board", "bulb", "tube light", "wiring", "فین", "بجلی", "پنکھا", "سوئچ", "الیکٹریشن"],
+    "ac_mechanic":  ["ac", "a.c", "a/c", "air condition", "cooling", "thanda", "gas", "freon", "service", "ac service", "ac wala", "mechanic", "ٹھنڈا", "اے سی", "کولنگ", "thanda nahi kar raha"],
+    "carpenter":    ["carpenter", "wood", "darwaza", "door", "furniture", "almari", "lakri", "lakdi", "bed", "sofa", "chair", "table", "kursi", "mez", "almira", "badhai", "بڑھئی", "لکڑی", "دروازہ", "الماری"],
+    "painter":      ["paint", "rang", "wall", "deewar", "color", "colour", "rangan", "rogan", "distemper", "polish", "رنگ", "دیوار", "پینٹ"],
+    "house_maid":   ["maid", "kaam wali", "cleaning", "safai", "safayi", "safayee", "saaf", "jharu", "pocha", "ghar ki safai", "dhona", "sweeper", "dusting", "ملازمہ", "کام والی", "صفائی", "گھر صاف"],
+    "gardener":     ["garden", "mali", "plant", "tree", "lawn", "grass", "poda", "podhay", "podai", "poday", "bagh", "pauda", "ghas", "مالی", "باغ", "گھاس", "پودا"],
+    "tutor":        ["tutor", "teacher", "ustad", "padhai", "study", "math", "science", "english", "parhai", "parhana", "academy", "school", "tuition", "sir", "madam", "استاد", "پڑھائی", "ٹیوٹر"],
+    "beautician":   ["beauty", "makeup", "parlour", "mehendi", "waxing", "facial", "salon", "cutting", "mehndi", "threading", "bridal", "dulhan", "hair", "بیوٹیشن", "میک اپ", "مہندی"],
+    "cook":         ["cook", "khana", "food", "bawarchi", "cooking", "chef", "roti", "salan", "pakana", "chawal", "biryani", "daawat", "kitchen", "باورچی", "کھانا", "کوک"],
+    "generator":    ["generator", "genset", "backup", "light chali gayi", "gen", "janretar", "janrator", "جنریٹر", "بجلی چلی گئی"],
+    "welder":       ["weld", "loha", "iron", "gate", "jali", "grill", "steel", "tanki", "welder", "ویلڈر", "لوہا"],
+    "tiler":        ["tile", "floor", "mezzanine", "bathroom tiles", "farash", "farsh", "pathar", "marbal", "tail", "tailan", "tailain", "tiler", "marble", "ٹائل", "فرش", "ٹائل لگانا"],
 }
 
 TIME_PATTERNS = [
     r'\b(\d{1,2})\s*(am|pm|بجے|صبح|شام|رات)\b',
-    r'\b(kal|aaj|parson|tomorrow|today|kal subah|aaj raat)\b',
-    r'\b(subah|dophar|shaam|raat|morning|afternoon|evening|night)\b',
+    r'\b(kal|aaj|parso|parson|tomorrow|today|kal subah|kal subha|aaj raat)\b',
+    r'\b(subah|subha|dophar|dopahar|shaam|raat|morning|afternoon|evening|night)\b',
     r'\b(\d{1,2}:\d{2})\b',
     r'\b(abhi|now|jaldi|asap|فوری|ابھی)\b',
 ]
@@ -79,8 +69,35 @@ GREETING_PATTERNS = [
 
 # ── Intent extraction helpers ─────────────────────────────────────────────────
 
+def has_date(text: str) -> bool:
+    lower = text.lower()
+    date_words = ["kal", "tomorrow", "parso", "parson", "day after tomorrow", "aaj", "today"]
+    if any(re.search(rf"\b{word}\b", lower) for word in date_words):
+        return True
+    if re.search(r'\b\d{1,2}[/-]\d{1,2}\b', lower):
+        return True
+    return False
+
+def has_time_of_day(text: str) -> bool:
+    lower = text.lower()
+    time_words = [
+        "subah", "subha", "dophar", "dopahar", "shaam", "raat", "morning", "afternoon", "evening", "night",
+        "abhi", "now", "jaldi", "asap", "fauri", "فوری", "ابھی"
+    ]
+    if any(re.search(rf"\b{word}\b", lower) for word in time_words):
+        return True
+    if re.search(r'\b\d{1,2}\s*(am|pm|بجے|صبح|شام|رات)\b', lower):
+        return True
+    if re.search(r'\b\d{1,2}:\d{2}\b', lower):
+        return True
+    return False
+
 def detect_service(text: str) -> Optional[str]:
     lower = text.lower()
+    # Guard against obvious irrelevant queries
+    irrelevant_signals = ["recipe", "weather", "joke", "song", "movie", "news", "what is the difference", "explain"]
+    if any(sig in lower for sig in irrelevant_signals):
+        return None
     for service, keywords in SERVICE_KEYWORDS.items():
         for kw in keywords:
             if kw.lower() in lower:
@@ -88,6 +105,20 @@ def detect_service(text: str) -> Optional[str]:
     return None
 
 def detect_time(text: str) -> Optional[str]:
+    lower = text.lower()
+    
+    # Combined date + time of day patterns
+    combined_patterns = [
+        r'\b(kal|aaj|parso|parson|tomorrow|today|day after tomorrow)\s+(at\s+)?(subah|subha|dophar|dopahar|shaam|raat|morning|afternoon|evening|night|\d{1,2}\s*(am|pm|بجے|صبح|شام|رات)|\d{1,2}:\d{2})\b',
+        r'\b(subah|subha|dophar|dopahar|shaam|raat|morning|afternoon|evening|night|\d{1,2}\s*(am|pm|بجے|صبح|شام|رات)|\d{1,2}:\d{2})\s+(of\s+)?(kal|aaj|parso|parson|tomorrow|today|day after tomorrow)\b',
+    ]
+    for pattern in combined_patterns:
+        m = re.search(pattern, lower)
+        if m:
+            start, end = m.span()
+            return text[start:end]
+            
+    # Fallback to individual patterns
     for pattern in TIME_PATTERNS:
         m = re.search(pattern, text, re.IGNORECASE)
         if m:
@@ -137,6 +168,21 @@ async def ai_chat(req: AIChatRequest):
 
     # Intercept voice message payload if present
     is_voice = False
+
+    # Frontend sends "[Voice Message Received]" marker (no base64 audio over chat endpoint)
+    if msg == "[Voice Message Received]" or req.is_voice:
+        is_voice = True
+        if lang == "ur":
+            reply = "آپ کا وائس میسج مل گیا! ابھی آواز کی پہچان دستیاب نہیں۔ براہ کرم اپنا مسئلہ ٹائپ کریں — جیسے: 'مجھے پلمبر چاہیے'"
+        else:
+            reply = "Aap ka voice message mila! Abhi voice transcription available nahi. Kindly apna masla type karein — jaise: 'Mujhe plumber chahiye'"
+        return AIChatResponse(
+            reply=reply,
+            action="chat",
+            user_transcription="[Voice Message]"
+        )
+
+    # Legacy: raw base64 audio payload (fallback)
     if msg.startswith("voice_msg_audio|"):
         is_voice = True
         try:
@@ -147,7 +193,6 @@ async def ai_chat(req: AIChatRequest):
                 if transcription:
                     msg = transcription
                 else:
-                    # Graceful fallback: Ask user to type since Gemini is rate-limited / failed
                     if lang == "ur":
                         reply = "معذرت، میں آپ کا وائس میسج نہیں سن سکا۔ برائے مہربانی اپنا مسئلہ ٹائپ کر کے بتائیں۔"
                     else:
@@ -173,6 +218,9 @@ async def ai_chat(req: AIChatRequest):
     full_context = " ".join([t.text for t in history if t.role == "user"] + [msg])
     service = detect_service(full_context)
     time_hint = detect_time(full_context)
+    time_is_exact = False
+    if time_hint:
+        time_is_exact = has_time_of_day(time_hint)
 
     # ── 2. Detect if it's just a greeting ─────────────────────────────────────
     if is_greeting(msg) and not service:
@@ -187,7 +235,7 @@ async def ai_chat(req: AIChatRequest):
             )
         else:
             reply = (
-                "Wa Alaikum Assalam! I'm your Khidmat AI assistant. 😊\n\n"
+                "Wa Alaikum Assalam! I'm your KaamSaaz assistant. 😊\n\n"
                 "Just tell me what you need:\n"
                 "• \"Mera pankha kharab hai\"\n"
                 "• \"Plumber chahiye\"\n"
@@ -201,20 +249,23 @@ async def ai_chat(req: AIChatRequest):
         [f"{'Customer' if t.role == 'user' else 'Assistant'}: {t.text}" for t in history[-6:]]
     )
 
-    gemini_prompt = f"""You are Khidmat AI, a smart home services booking assistant for Pakistan.
+    time_hint_display = time_hint if time_is_exact else ("Date specified but need exact time of day" if time_hint else "not mentioned yet")
+
+    gemini_prompt = f"""You are KaamSaaz, a smart home services booking assistant for Pakistan.
 You ONLY help with booking home services (plumber, electrician, AC mechanic, carpenter, painter, house maid, gardener, tutor, beautician, cook, welder, tiler, generator mechanic).
 
 RULES:
 1. Reply in the SAME language the customer uses (Roman Urdu, Urdu, or English).
-2. If the customer specifies a problem without a time/date (e.g. "fan kharab hai") → identify the service and reply exactly: "ap ko [service] ki zaroorat hai kindly time confirm kr dein phir main recommended providers batata hu ap ko" in Roman Urdu, or "You need a [service]. Kindly confirm the time so I can show you recommended providers" in English. Replace [service] with the actual detected service type (e.g., electrician, plumber).
-3. If you identified the service and they gave time → reply saying you'll find providers now. End reply with: [READY_TO_BOOK]
+2. If the customer specifies a problem or service but has NOT given a specific time of day (e.g. they only said "kal", "parso", "tomorrow", or "aaj") → you MUST ask for the exact time of day (e.g. "kal kis time?", "parso kis time?"). DO NOT proceed with booking and do NOT include [READY_TO_BOOK] until they provide an exact time/hour/time of day (e.g. morning, 10 AM, subha, shaam).
+3. If you identified the service AND they gave a specific time of day (e.g. "kal subha", "today at 5 PM", "parso shaam") → reply saying you'll find providers now. End reply with: [READY_TO_BOOK]
 4. If the question is NOT about home services → politely say you only handle home service bookings.
 5. Keep replies SHORT (max 3-4 lines). Be warm and helpful.
 6. Do NOT make up prices or provider names.
-7. Response language preference: {"Urdu" if lang == "ur" else "Match customer's language"}
+7. Important mappings: "kal" = tomorrow, "parso" = day after tomorrow, "subha" = morning, "shaam" = evening.
+8. Response language preference: {"Urdu" if lang == "ur" else "Match customer's language"}
 
 Detected service so far: {service or "not yet detected"}
-Detected time so far: {time_hint or "not mentioned yet"}
+Detected time so far: {time_hint_display}
 
 Conversation so far:
 {history_text}
@@ -226,14 +277,37 @@ Your reply:"""
     try:
         gemini_reply = await generate_text(gemini_prompt)
         gemini_reply = gemini_reply.strip()
-    except Exception:
-        gemini_reply = (
-            "معذرت، ابھی AI جواب نہیں دے سکا۔ دوبارہ کوشش کریں۔" if lang == "ur"
-            else "Sorry, AI is temporarily unavailable. Please try again."
-        )
+    except Exception as e:
+        print(f"[AI Chat] Gemini API failed (Credits exhausted?): {e}")
+        # Rule-based fallback if API fails
+        if not service:
+            gemini_reply = (
+                "آپ کو کس سروس کی ضرورت ہے؟ (جیسے پلمبر، الیکٹریشن)" if lang == "ur"
+                else "Ap ko kis service ki zaroorat hai? (e.g., Plumber, Electrician)"
+            )
+        elif service and not time_is_exact:
+            service_label = get_service_label(service, lang)
+            if time_hint:
+                gemini_reply = (
+                    f"ٹھیک ہے، {time_hint} کو کس وقت؟ برائے مہربانی وقت کنفرم کر دیں۔" if lang == "ur"
+                    else f"Theek hai, {time_hint} kis time? Kindly exact time confirm kr dein."
+                )
+            else:
+                gemini_reply = (
+                    f"آپ کو {service_label} کی ضرورت ہے۔ برائے مہربانی وقت کنفرم کر دیں۔" if lang == "ur"
+                    else f"Ap ko {service} ki zaroorat hai kindly time confirm kr dein."
+                )
+        else:
+            # We have both service and time
+            gemini_reply = "[READY_TO_BOOK]"
 
     # ── 4. Check if Gemini says ready to book ─────────────────────────────────
     ready_to_book = "[READY_TO_BOOK]" in gemini_reply
+    
+    # Enforce programmatic safeguard: do NOT book unless time is exact and service is detected
+    if not service or not time_is_exact:
+        ready_to_book = False
+        
     clean_reply = gemini_reply.replace("[READY_TO_BOOK]", "").strip()
 
     if ready_to_book and service:

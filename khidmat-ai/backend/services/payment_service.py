@@ -1,5 +1,5 @@
 """
-Khidmat AI — Payment Service
+KaamSaaz — Payment Service
 JazzCash/EasyPaisa sandbox simulation and escrow management.
 """
 import hashlib

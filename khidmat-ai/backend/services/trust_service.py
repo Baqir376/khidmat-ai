@@ -1,5 +1,5 @@
 """
-Khidmat AI — Trust Scoring Service
+KaamSaaz — Trust Scoring Service
 Composite trust score from 5 factors: reviews, completion, response time,
 verification, and experience. Used by MatchingAgent for provider ranking.
 """

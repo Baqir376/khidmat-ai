@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class ApiService {
-  static const String fallbackUrl = 'https://khidmat-ai.onrender.com/api';
+  static const String fallbackUrl = 'https://midweekly-stearic-sanora.ngrok-free.dev/api';
   static String? _resolvedBaseUrl;
 
   static String get baseUrl {
@@ -17,7 +17,7 @@ class ApiService {
     if (_resolvedBaseUrl != null) return;
     
     final candidates = [
-      'https://khidmat-ai.onrender.com/api', // Render Public Deployment (Production Cloud)
+      'https://midweekly-stearic-sanora.ngrok-free.dev/api', // Ngrok Tunnel
       'http://192.168.5.246:8000/api', // Direct Local Wi-Fi
       'http://10.0.2.2:8000/api', // Android Emulator
       'http://localhost:8000/api',
@@ -289,6 +289,16 @@ class ApiService {
     double lng = 67.0099,
     String language = 'en',
   }) async {
+    // If the message is a raw voice payload, extract just metadata info
+    // and send only a small text representation — never send raw base64 over AI chat
+    String textToSend = message;
+    bool isVoiceMsg = false;
+    if (message.startsWith('voice_msg_audio|')) {
+      isVoiceMsg = true;
+      // Only send a marker — backend handles transcription separately
+      textToSend = '[Voice Message Received]';
+    }
+
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/ai-chat'),
@@ -297,21 +307,40 @@ class ApiService {
           'ngrok-skip-browser-warning': 'true',
         },
         body: jsonEncode({
-          'message': message,
+          'message': textToSend,
           'history': history,
           'lat': lat,
           'lng': lng,
           'language': language,
+          'is_voice': isVoiceMsg,
         }),
-      );
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        throw Exception('Failed to send AI chat: ${response.statusCode}');
+        // Server returned an error — return a graceful fallback
+        return {
+          'reply': language == 'ur'
+              ? 'معذرت، ابھی سرور سے رابطہ نہیں ہو سکا۔ دوبارہ کوشش کریں۔'
+              : 'Mazrat, server se connection nahi hua. Dobara koshish karein.',
+          'action': 'chat',
+        };
       }
     } catch (e) {
-      throw Exception('Network error: $e');
+      // Network error or timeout — return a smart local fallback
+      debugPrint('[ApiService] sendAIChat error: \$e');
+      final isVoice = message.startsWith('voice_msg_audio|');
+      return {
+        'reply': isVoice
+            ? (language == 'ur'
+                ? 'آپ کا وائس میسج مل گیا لیکن سرور سے رابطہ نہیں۔ براہ کرم اپنا مسئلہ ٹائپ کریں۔'
+                : 'Aap ka voice message mila lekin server se connection nahi. Kindly type kr k batayein ap ko kis service ki zaroorat hai.')
+            : (language == 'ur'
+                ? 'ابھی سرور دستیاب نہیں۔ برائے مہربانی دوبارہ کوشش کریں۔'
+                : 'Server abhi available nahi. Thori der baad dobara koshish karein.'),
+        'action': 'chat',
+      };
     }
   }
 }

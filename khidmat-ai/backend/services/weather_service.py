@@ -1,5 +1,5 @@
 """
-Khidmat AI — Weather Service
+KaamSaaz — Weather Service
 Uses Open-Meteo API (free, no key required) for real weather data.
 Used by DiscoveryAgent to flag outdoor service risks and DemandAgent for predictions.
 """
