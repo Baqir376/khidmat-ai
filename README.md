@@ -28,6 +28,10 @@ To guarantee absolute transparency for evaluation, here is the status of every f
 | Component / Feature | Implementation Status | Technical Details |
 | :--- | :--- | :--- |
 | **Agentic NLP Engine** | **100% Real** | Core orchestrator utilizes **Google Gemini 2.0 Flash** (`google-generativeai`) to parse natural language requests, extract categories, match providers, and output JSON schemas. |
+| **Multi-Language Switcher** | **100% Real** | Flutter `LanguageProvider` enables instant toggling between English, Urdu, and Roman Urdu. All assets, forms, and chatbots translate instantly. |
+| **Voice AI & Waveforms** | **100% Real** | Users can record voice commands. The app transcribes Urdu/Roman Urdu voice notes, replies with waveform playback, and plays audio responses using TTS. |
+| **Exact Time Safeguards** | **100% Real** | System programmatically blocks provider lookup if only relative dates (*"kal"*, *"parso"*) are given without an exact time of day. AI asks clarifying questions until a time is confirmed. |
+| **Provider Rate Validator** | **100% Real** | Automatically compares provider registration rates against local averages via `/api/providers/validate-rate` and provides a friendly price correction alert. |
 | **Database Storage** | **100% Real** | All collections (`providers`, `bookings`, `messages`, `agentTraces`, `serviceTypes`) run on a production **Supabase REST database client** over async HTTP calls. |
 | **Womens Safety Mode** | **100% Real** | Dynamic filter matches user parameters to verified female-only service providers. |
 | **Geofencing & Distance** | **100% Real** | Uses the **Haversine formula** to calculate real coordinate distances (in kilometers) between citizens and providers. |
