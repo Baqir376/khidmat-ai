@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class ApiService {
-  static const String fallbackUrl = 'https://midweekly-stearic-sanora.ngrok-free.dev/api';
+  static const String fallbackUrl = 'https://khidmat-ai.onrender.com/api';
   static String? _resolvedBaseUrl;
 
   static String get baseUrl {
@@ -17,6 +17,7 @@ class ApiService {
     if (_resolvedBaseUrl != null) return;
     
     final candidates = [
+      'https://khidmat-ai.onrender.com/api', // Render Production URL
       'https://midweekly-stearic-sanora.ngrok-free.dev/api', // Ngrok Tunnel
       'http://192.168.5.246:8000/api', // Direct Local Wi-Fi
       'http://10.0.2.2:8000/api', // Android Emulator
